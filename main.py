@@ -6,11 +6,23 @@ import maze
 
 
 class Map:
-    SIZE = 8  # size of each map chip
-    CHIP_WIDTH = 4  # 4 map chips in a row
+    SIZE = 8         # size of each map chip
+    CHIP_WIDTH = 4   # 4 map chips in a row
     CHIP_HEIGHT = 4  # 4 map chips in a column
 
-    # Convert map chip coordinates to screen coordinates
+    # in asset.pyxres, map-chips are aranged like:
+    # [ 0][ 1][ 2][ 3]
+    # [ 4][ 5][ 6][ 7]
+    # [ 8][ 9][10][11]
+    # [12][13][14][15]
+
+    def __init__(self):
+        self.map = self.load_map("maze.txt")
+        self.MAP_WIDTH = len(self.map[0])
+        self.MAP_HEIGHT = len(self.map)
+        print(self.MAP_WIDTH, self.MAP_HEIGHT)
+
+    # Convert map coordinates to screen coordinates
     @classmethod
     def to_screen(cls, i, j):
         return (i * cls.SIZE, j * cls.SIZE)
@@ -23,12 +35,6 @@ class Map:
         u = (val % cls.CHIP_WIDTH) * cls.SIZE
         v = (math.floor(val / cls.CHIP_WIDTH)) * cls.SIZE
         pyxel.blt(x, y, 0, u, v, cls.SIZE, cls.SIZE, 2)
-
-    def __init__(self):
-        self.map = self.load_map("maze.txt")
-        self.MAP_WIDTH = len(self.map[0])
-        self.MAP_HEIGHT = len(self.map)
-        print(self.MAP_WIDTH, self.MAP_HEIGHT)
 
     def load_map(self, txt):
         map = []
@@ -86,6 +92,7 @@ class App:
     MINI_MAP_SIZE = 4
     SIGHT = 2  # how far player can see
     # You can see inside a circle with a radius of SIGHT
+
     ID = {"background": 0,
           "goal": 8,
           "wall": 11,
@@ -108,6 +115,7 @@ class App:
         # Get a goal's position
         self.gx, self.gy = self.map.search_map(self.ID["goal"])
         pyxel.load("asset.pyxres")
+
         self.START_TIME = time.time()
         pyxel.run(self.update, self.draw)
 
@@ -164,8 +172,8 @@ class App:
 
         return True
 
-    # visit around
     def visit_around(self):
+        # You can see inside a circle with a radius of SIGHT
         s = self.SIGHT
         W = self.map.MAP_WIDTH
         H = self.map.MAP_HEIGHT
@@ -180,7 +188,6 @@ class App:
                     continue
                 self.visited[y][x] = True
 
-    # draw player
     def draw_player(self):
         Map.draw_chip(self.x, self.y, self.ID["player"])
 
