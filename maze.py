@@ -5,7 +5,9 @@ from collections import deque
 sys.setrecursionlimit(10**6)
 
 HEIGHT, WIDTH = 19, 19
-# Make a pathway around it.
+# Make a pathway outline of the maze.
+#  "0": open
+# "11": wall
 maze = [["0"]*WIDTH]
 for _ in range(HEIGHT-2):
     m = ["0"] + ["11"]*(WIDTH - 2) + ["0"]
@@ -43,46 +45,36 @@ def make_maze(y, x):
         make_maze(ny, nx)  # Move to the point where you dug.
 
 
-def main():
-    # start
+def get_random_start():
     sx = random.randint(1, WIDTH)
+    # sx, sy must be odd
     sx = sx if sx % 2 == 1 else sx-1
     sy = 1
-    maze[sy][sx] = "0"
-    make_maze(sy, sx)
-    maze[sy][sx] = "15"  # player is at start
+    return sx, sy
 
-    # Put the perimeter back on the wall.
-    for i in range(WIDTH):
-        maze[0][i] = "11"
-        maze[HEIGHT-1][i] = "11"
-    for j in range(HEIGHT):
-        maze[j][0] = "11"
-        maze[j][-1] = "11"
 
-    # I'll take the farthest point to the finish line.
+def get_goal(sx, sy):
     q = deque([(sy, sx)])
-    max_dist = 0  # the longest distance
     gy, gx = 1, 1  # goal positioon
+
     dx = [1, -1, 0, 0]
     dy = [0, 0, 1, -1]
+
     # array with the distances of each square
+    # distance is -1 if not visited
     dist = [[-1]*WIDTH for _ in range(HEIGHT)]
     dist[sy][sx] = 0
+    max_dist = 0   # the longest distance
 
-    while q:  # Rotate the queue until there are no more elements
-
+    while q:
         y, x = q.popleft()  # Retrieving an element from the top
-
         for i in range(4):
-
             ny = y+dy[i]
             nx = x+dx[i]
 
-            if ny <= 0 or nx <= 0 or ny+1 == HEIGHT or nx+1 == WIDTH:
+            if ny <= 0 or nx <= 0 or ny >= HEIGHT or nx >= WIDTH:
                 continue
-
-            if maze[ny][nx] == "#":
+            if maze[ny][nx] == "11":
                 continue
 
             # Update the distance if you haven't visited yet
@@ -93,9 +85,29 @@ def main():
                 if max_dist < dist[ny][nx]:  # update the longest distance
                     gy, gx = ny, nx
                     max_dist = dist[ny][nx]
+    return gx, gy
 
+
+def main():
+    # make a maze
+    sx, sy = get_random_start()
+    maze[sy][sx] = "0"
+    make_maze(sy, sx)
+    maze[sy][sx] = "15"  # player is at start
+
+    # Replace a pathway to a wall outline of the maze.
+    for i in range(WIDTH):
+        maze[0][i] = "11"
+        maze[HEIGHT-1][i] = "11"
+    for j in range(HEIGHT):
+        maze[j][0] = "11"
+        maze[j][-1] = "11"
+
+    # set a goal
+    gx, gy = get_goal(sx, sy)
     maze[gy][gx] = "8"
 
+    # write data to text file
     with open("maze.txt", "w") as f:
         for m in maze:
             row = ", ".join(m)
