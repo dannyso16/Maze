@@ -25,8 +25,6 @@ class Map:
         pyxel.blt(x, y, 0, u, v, cls.SIZE, cls.SIZE, 2)
 
     def __init__(self):
-        super().__init__()
-
         self.map = self.load_map("maze.txt")
         self.MAP_WIDTH = len(self.map[0])
         self.MAP_HEIGHT = len(self.map)
@@ -109,8 +107,6 @@ class App:
 
         # Get a goal's position
         self.gx, self.gy = self.map.search_map(self.ID["goal"])
-        # Removing a player from the map data
-        # self.map.set_map(self.x, self.y, 0)
         pyxel.load("asset.pyxres")
         self.START_TIME = time.time()
         pyxel.run(self.update, self.draw)
@@ -131,8 +127,6 @@ class App:
         pyxel.cls(pyxel.COLOR_BLACK)
 
         self.draw_map()
-        # プレイヤーの描画
-        # self.draw_player()
 
         left = 30 - int(time.time() - self.START_TIME)
         pyxel.text(5, H - 30, "ESCAPE HERE!!", pyxel.COLOR_YELLOW)
@@ -224,7 +218,7 @@ class App:
                 pyxel.rect(x, y, size, size, col)
                 pyxel.rectb(x, y, size, size, pyxel.COLOR_DARKGRAY)
 
-    ### event ###
+    # event
     def game_clear(self):
         H = pyxel.height
         pyxel.text(5, H - 20, "YOU WIN!!", pyxel.COLOR_YELLOW)

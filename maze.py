@@ -11,7 +11,6 @@ for _ in range(HEIGHT-2):
     m = ["0"] + ["11"]*(WIDTH - 2) + ["0"]
     maze.append(m)
 maze.append(["0"]*WIDTH)
-# print(*maze, sep="\n")
 
 dx = [(1, 2), (-1, -2), (0, 0), (0, 0)]  # x-axis vector
 dy = [(0, 0), (0, 0), (1, 2), (-1, -2)]  # y-axis vector
@@ -23,7 +22,7 @@ def make_maze(y, x):
     random.shuffle(array)  # Randomly decide on a preferred direction
 
     for i in array:
-        # 二つ先
+        # Two squares ahead
         nx = x + dx[i][1]
         ny = y + dy[i][1]
 
@@ -86,7 +85,8 @@ def main():
             if maze[ny][nx] == "#":
                 continue
 
-            if dist[ny][nx] == -1:  # Update the distance if you haven't visited yet
+            # Update the distance if you haven't visited yet
+            if dist[ny][nx] == -1:
                 q.append((ny, nx))
                 dist[ny][nx] = dist[y][x]+1
 
@@ -95,9 +95,6 @@ def main():
                     max_dist = dist[ny][nx]
 
     maze[gy][gx] = "8"
-
-    # for i in maze:
-    #     print(*i)
 
     with open("maze.txt", "w") as f:
         for m in maze:
