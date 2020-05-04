@@ -1,48 +1,46 @@
 import pyxel
-import math  # math.floorを使うので必要
+import math
 import time
 
 import maze
 
 
 class Map:
-    SIZE = 8  # チップサイズ
-    CHIP_WIDTH = 4  # 1列に5並んでいる
-    CHIP_HEIGHT = 4  # 4行並でいる
+    SIZE = 8  # size of each map chip
+    CHIP_WIDTH = 4  # 4 map chips in a row
+    CHIP_HEIGHT = 4  # 4 map chips in a column
 
-    # マップチップ座標をスクリーン座標に変換
+    # Convert map chip coordinates to screen coordinates
     @classmethod
     def to_screen(cls, i, j):
         return (i * cls.SIZE, j * cls.SIZE)
 
-    # マップチップの描画
+    # Drawing a map chip
     @classmethod
     def draw_chip(cls, i, j, val):
-        # スクリーン座標に変換
+        # Convert to screen coordinates of the chip image
         x, y = cls.to_screen(i, j)
-        # チップ画像の座標を計算
         u = (val % cls.CHIP_WIDTH) * cls.SIZE
         v = (math.floor(val / cls.CHIP_WIDTH)) * cls.SIZE
         pyxel.blt(x, y, 0, u, v, cls.SIZE, cls.SIZE, 2)
 
     def __init__(self):
         super().__init__()
-        # マップデータ読み込み
+
         self.map = self.load_map("maze.txt")
         self.MAP_WIDTH = len(self.map[0])
         self.MAP_HEIGHT = len(self.map)
         print(self.MAP_WIDTH, self.MAP_HEIGHT)
 
     def load_map(self, txt):
-        # マップ読み込み
         map = []
         map_file = open(txt)
+        # Read a line at a time.
         for line in map_file:
-            # １行ずつ読み込み
             array = []
             data = line.split(",")
             for d in data:
-                # 余分な文字を削除
+                # Remove extra characters like \n
                 s = d.strip()
                 if s == "":
                     break
@@ -53,41 +51,43 @@ class Map:
         return map
 
     def set_map(self, i, j, val):
-        # 指定の位置に値を設定する
+        # Sets a value at a specified position.
         self.map[j][i] = val
 
     def get_map(self):
         return self.map
 
-    # マップから指定のチップを探す
+    # Find a specific chip on the map
     def search_map(self, val):
-        # 指定の値が存在する座標を返す
+        # Returns the coordinates where the given value exists.
         for j, arr in enumerate(self.map):
             for i, v in enumerate(arr):
+                # when found, return the coordinates
                 if v == val:
-                    # 見つかった
                     return i, j
-        raise ValueError(f"マップチップに val={val}がない")
+        raise ValueError(f"val={val} is not found in a map.")
 
     def is_wall(self, i, j):
-        # 指定の座標が壁かどうかチェックする
+        # Check if a given coordinate is a wall
+        # outside the map
         if i < 0 or self.MAP_WIDTH <= i:
-            return True  # マップ外
+            return True
         if j < 0 or self.MAP_HEIGHT <= j:
-            return True  # マップ外
-
-        v = self.map[j][i]
-        if v in range(11, 16):
-            # 壁なので移動できない
             return True
 
-        # 移動可能
+        # wall
+        v = self.map[j][i]
+        if v in range(11, 16):
+            return True
+
+        # possible to move
         return False
 
 
 class App:
     MINI_MAP_SIZE = 4
-    SIGHT = 2  # 視野
+    SIGHT = 2  # how far player can see
+    # You can see inside a circle with a radius of SIGHT
     ID = {"background": 0,
           "goal": 8,
           "wall": 11,
@@ -97,19 +97,19 @@ class App:
     def __init__(self):
         pyxel.init(250, 200, fps=60)
 
-        # mapを初期化
+        # initialize the map
         self.map = Map()
-        # 探索したか
+        # Whether you explored the positon or not.
         self.visited = [
             [False]*self.map.MAP_WIDTH for _ in range(self.map.MAP_HEIGHT)]
 
-        # プレイヤーの位置を取得
+        # Get a player's position
         self.x, self.y = self.map.search_map(self.ID["player"])
         self.visit_around()
 
-        # ゴールの位置を取得
+        # Get a goal's position
         self.gx, self.gy = self.map.search_map(self.ID["goal"])
-        # マップデータからプレイヤーを削除
+        # Removing a player from the map data
         # self.map.set_map(self.x, self.y, 0)
         pyxel.load("asset.pyxres")
         self.START_TIME = time.time()
@@ -130,7 +130,6 @@ class App:
 
         pyxel.cls(pyxel.COLOR_BLACK)
 
-        # マップの描画
         self.draw_map()
         # プレイヤーの描画
         # self.draw_player()
@@ -143,7 +142,7 @@ class App:
             self.draw_mini_map()
 
     def input_key(self):
-        # キー入力判定
+        # judge key input
         x_next = self.x
         y_next = self.y
         if pyxel.btnp(pyxel.KEY_LEFT):
@@ -156,14 +155,13 @@ class App:
             y_next += 1
 
         if self.x == x_next and self.y == y_next:
-            # 異動先が同じなので移動しない
+            # No need to move
             return False
 
         if self.map.is_wall(x_next, y_next):
-            # 壁なので移動できない
+            # player can't move above the wall.
             return False
 
-        # 移動する
         self.map.set_map(self.x, self.y, self.ID["background"])
         self.map.set_map(x_next, y_next, self.ID["player"])
 
@@ -172,7 +170,7 @@ class App:
 
         return True
 
-    # 周囲を訪れる
+    # visit around
     def visit_around(self):
         s = self.SIGHT
         W = self.map.MAP_WIDTH
@@ -188,7 +186,7 @@ class App:
                     continue
                 self.visited[y][x] = True
 
-    # プレイヤーの描画
+    # draw player
     def draw_player(self):
         Map.draw_chip(self.x, self.y, self.ID["player"])
 
@@ -196,10 +194,10 @@ class App:
         size = Map.SIZE
         W = self.map.MAP_WIDTH
         H = self.map.MAP_HEIGHT
-        # 外枠の描画
+        # Drawing the outer frame
         pyxel.rectb(0, 0, size*W, size*H, 5)
 
-        # 各チップの描画
+        # Rendering of each map chip
         m = self.map.map
         s = self.SIGHT
 
