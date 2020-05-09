@@ -91,7 +91,7 @@ class App:
         # Whether you explored the positon or not.
         self.visited = [
             [False]*self.map.MAP_WIDTH for _ in range(self.map.MAP_HEIGHT)]
-        self.state = "dig"  # or "play"
+        self.state = "dig"  # or "fill"
 
         pyxel.init(152, 152, fps=10)
         pyxel.load("asset.pyxres")
@@ -111,9 +111,9 @@ class App:
                 i, j = self.log_of_dig[f]
                 self.map.set_map(i, j, 14)  # draw player
             else:  # f == len(self.log_of_dig)
-                self.state = "play"
+                self.state = "fill"
 
-        elif self.state == "play":
+        elif self.state == "fill":
             f = pyxel.frame_count % self.CYCLE - len(self.log_of_dig)
             i, j = self.log_of_visit[f-1]
             self.map.set_map(i, j, 12)  # delete player
