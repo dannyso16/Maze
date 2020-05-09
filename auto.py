@@ -215,10 +215,7 @@ class App:
         # Make a pathway outline of the maze.
         #  "0": open
         # "12": wall
-        for _ in range(self.HEIGHT-2):
-            m = ["0"] + ["12"]*(self.WIDTH - 2) + ["0"]
-            self.maze.append(m)
-        self.maze.append(["0"]*self.WIDTH)
+        self.maze = [["12"]*self.WIDTH for _ in range(self.HEIGHT)]
 
         self.log_of_dig = []  # a log of where to dig
 
@@ -232,15 +229,7 @@ class App:
         self.log_of_visit = self.log_of_dig[::-1]
         self.maze[sy][sx] = "14"  # player is at start
 
-        # Replace a pathway to a wall outline of the maze.
-        for i in range(self.WIDTH):
-            self.maze[0][i] = "12"
-            self.maze[-1][i] = "12"
-        for j in range(self.HEIGHT):
-            self.maze[j][0] = "12"
-            self.maze[j][-1] = "12"
-
-        # set a goal5
+        # set a goal with the farthest place from the start
         gx, gy = self.get_goal(sx, sy)
         self.maze[gy][gx] = "14"
 
