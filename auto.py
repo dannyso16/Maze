@@ -176,40 +176,6 @@ class App:
         sy = 1
         return sx, sy
 
-    def get_goal(self, sx, sy):
-        q = deque([(sy, sx)])
-        gy, gx = 1, 1  # goal positioon
-
-        dx = [1, -1, 0, 0]
-        dy = [0, 0, 1, -1]
-
-        # array with the distances of each square
-        # distance is -1 if not visited
-        dist = [[-1]*self.WIDTH for _ in range(self.HEIGHT)]
-        dist[sy][sx] = 0
-        max_dist = 0   # the longest distance
-
-        while q:
-            y, x = q.popleft()  # Retrieving an element from the top
-            for i in range(4):
-                ny = y+dy[i]
-                nx = x+dx[i]
-
-                if not(0 <= ny < self.HEIGHT) or not(0 <= nx < self.WIDTH):
-                    continue
-                if self.maze[ny][nx] == "12":
-                    continue
-
-                # Update the distance if you haven't visited yet
-                if dist[ny][nx] == -1:
-                    q.append((ny, nx))
-                    dist[ny][nx] = dist[y][x]+1
-
-                    if max_dist < dist[ny][nx]:  # update the longest distance
-                        gy, gx = ny, nx
-                        max_dist = dist[ny][nx]
-        return gx, gy
-
     def generateMaze(self):
         self.maze = [["0"]*self.WIDTH]
         # Make a pathway outline of the maze.
@@ -228,10 +194,6 @@ class App:
 
         self.log_of_visit = self.log_of_dig[::-1]
         self.maze[sy][sx] = "14"  # player is at start
-
-        # set a goal with the farthest place from the start
-        gx, gy = self.get_goal(sx, sy)
-        self.maze[gy][gx] = "14"
 
 
 if __name__ == "__main__":
