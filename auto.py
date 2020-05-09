@@ -74,17 +74,20 @@ class Map:
 
 class App:
     def __init__(self):
+        # draw a screen with 'map'
         self.map = Map()
         self.HEIGHT = self.map.MAP_HEIGHT
         self.WIDTH = self.map.MAP_WIDTH
-        self.maze = [["0"]*self.WIDTH]
 
+        # maze data is created at first
+        # 'generateMaze()' initializes 'maze', 'log_of_dig', 'log_of_visit'
+        self.maze = [["0"]*self.WIDTH]*self.HEIGHT
         self.log_of_dig = []
         self.log_of_visit = []
         self.generateMaze()
+
+        # the cycle of "dig a maze and fill a path"
         self.CYCLE = len(self.log_of_dig)*2 + 1
-        self.x = None
-        self.y = None
         # Whether you explored the positon or not.
         self.visited = [
             [False]*self.map.MAP_WIDTH for _ in range(self.map.MAP_HEIGHT)]
@@ -151,10 +154,7 @@ class App:
             nx = x + dx[i][1]
             ny = y + dy[i][1]
 
-            if ny < 1 or ny >= self.HEIGHT:  # outside the map
-                continue
-
-            if nx < 1 or nx >= self.WIDTH:  # outside the map
+            if not(0 <= ny < self.HEIGHT) or not(0 <= nx < self.WIDTH):
                 continue
 
             if self.maze[ny][nx] == "0":  # Two squares ahead of you are already open
@@ -211,10 +211,10 @@ class App:
         return gx, gy
 
     def generateMaze(self):
+        self.maze = [["0"]*self.WIDTH]
         # Make a pathway outline of the maze.
         #  "0": open
         # "12": wall
-        self.maze = [["0"]*self.WIDTH]
         for _ in range(self.HEIGHT-2):
             m = ["0"] + ["12"]*(self.WIDTH - 2) + ["0"]
             self.maze.append(m)
@@ -226,7 +226,9 @@ class App:
         sx, sy = self.get_random_start()
         self.log_of_dig.append((sx, sy))
         self.maze[sy][sx] = "0"
+
         self.make_maze(sy, sx)
+
         self.log_of_visit = self.log_of_dig[::-1]
         self.maze[sy][sx] = "14"  # player is at start
 
