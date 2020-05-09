@@ -99,27 +99,27 @@ class App:
     def update(self):
         if self.state == "dig":
             f = pyxel.frame_count % self.CYCLE
+            if f == 0:
+                return
+            i, j = self.log_of_dig[f-1]
+            self.map.set_map(i, j, 0)  # delete player
+
             if f < len(self.log_of_dig):
                 i, j = self.log_of_dig[f]
-                self.map.set_map(i, j, 14)  # playerを描画
-                if f == 0:
-                    return
-                i, j = self.log_of_dig[f-1]
-                self.map.set_map(i, j, 0)  # ひとつ前を戻す
-            elif f == len(self.log_of_dig):
-                i, j = self.log_of_dig[f-1]
-                self.map.set_map(i, j, 0)  # playerを消す
+                self.map.set_map(i, j, 14)  # draw player
+            else:  # f == len(self.log_of_dig)
                 self.state = "play"
+
         elif self.state == "play":
             f = pyxel.frame_count % self.CYCLE - len(self.log_of_dig)
+            i, j = self.log_of_visit[f-1]
+            self.map.set_map(i, j, 12)  # delete player
+
             if f < len(self.log_of_visit):
                 i, j = self.log_of_visit[f]
-                self.map.set_map(i, j, 14)  # playerを描画
-                i, j = self.log_of_visit[f-1]
-                self.map.set_map(i, j, 12)
+                self.map.set_map(i, j, 14)  # draw player
             elif f == len(self.log_of_visit):
-                i, j = self.log_of_visit[f-1]
-                self.map.set_map(i, j, 12)  # playerを消す
+                # regenerate maze & dig again
                 self.generateMaze()
                 self.state = "dig"
 
