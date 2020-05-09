@@ -74,7 +74,6 @@ class Map:
 
 class App:
     def __init__(self):
-        super().__init__()
         self.map = Map()
         self.HEIGHT = self.map.MAP_HEIGHT
         self.WIDTH = self.map.MAP_WIDTH
@@ -234,7 +233,7 @@ class App:
         # Replace a pathway to a wall outline of the maze.
         for i in range(self.WIDTH):
             self.maze[0][i] = "12"
-            self.maze[self.HEIGHT-1][i] = "12"
+            self.maze[-1][i] = "12"
         for j in range(self.HEIGHT):
             self.maze[j][0] = "12"
             self.maze[j][-1] = "12"
